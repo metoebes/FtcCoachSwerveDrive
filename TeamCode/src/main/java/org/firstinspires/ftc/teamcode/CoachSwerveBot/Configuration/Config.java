@@ -12,8 +12,8 @@ public class Config {
 
     public float maxTurnSpeed = (float) 0.5;
     public boolean encoders = false;
-    public float driveSpeed = (float) .5;
-    public float turnSpeed = (float)1.00;
+    public float driveSpeed = (float) .4;
+    public float turnSpeed = (float)  .4;
     public float driveSpeedIncrement = DEFAULT_SPEED_UP;
 
     public ImprovedGamepad impGamepad1;
