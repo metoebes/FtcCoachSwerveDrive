@@ -21,7 +21,7 @@ public class ConfigDriveSpeed extends AbstractTestCase {
         testCaseName = "Set Drive Speed";
     }
     private void help() {
-        telemetry.addData("L/R bumper", "-/+ turn speed");
+        telemetry.addData("A/Y Buttons", "-/+ turn speed");
         telemetry.addData("   Drive Speed", config.driveSpeed);
         telemetry.addData("Press X", "to exit " + testCaseName);
     }
@@ -35,15 +35,19 @@ public class ConfigDriveSpeed extends AbstractTestCase {
             case 1: {
                 // right bumper -  Increase Turn Speed
                 if (impGamepad1.y.isInitialPress()) {
-                    config.driveSpeed += .1;
+                    telemetry.addData("increasing speed by .01","");
+                    config.driveSpeed += .01;
                     if (config.driveSpeed > 1)
                         config.driveSpeed = 1;
+                    telemetry.addData("speed is now ",config.driveSpeed);
                 }
                 // left bumper -Decrease Turn Speed
                 else if (impGamepad1.a.isInitialPress()) {
-                    config.driveSpeed -= .1;
+                    telemetry.addData("decreasing speed by .01","");
+                    config.driveSpeed -= .01;
                     if (config.driveSpeed < 0)
                         config.driveSpeed = 0;
+                    telemetry.addData("speed is now ",config.driveSpeed);
                 }
                 else if (impGamepad1.x.isInitialPress()) {
                     testCaseStep++;
