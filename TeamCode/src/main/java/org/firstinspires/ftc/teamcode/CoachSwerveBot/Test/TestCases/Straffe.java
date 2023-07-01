@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class Straffe extends AbstractTestCase {
     double angle;
-    double radius;
+    double magnitude;
     private final ImprovedGamepad impGamepad1;
     private final Telemetry telemetry;
 
@@ -24,9 +24,9 @@ public class Straffe extends AbstractTestCase {
             case 0: {
                 startLogging(testCaseName);
                 testCaseStep++;
-                telemetry.addData("rigth joy stick", "straffe");
+                telemetry.addData("right joy stick", "straffe");
                 telemetry.addData("L/R bumper", "turn");
-                telemetry.addData("Press X", "to stop test " + testCaseName);
+                telemetry.addData("Press X", "to exit" + testCaseName);
                 break;
             }
             case 1: {
@@ -52,8 +52,8 @@ public class Straffe extends AbstractTestCase {
                 else {
                     // right stick active = drive toward heading
                     angle = impGamepad1.right_stick_angle;
-                    radius = impGamepad1.right_stick_radius;
-                    robot.updateHeading(angle, radius);
+                    magnitude = impGamepad1.right_stick_radius;
+                    robot.updateHeading(angle, magnitude);
                 }
                 logData();
                 break;
@@ -84,7 +84,7 @@ public class Straffe extends AbstractTestCase {
                     testCaseName,
                     testCaseStep,
                     angle,
-                    radius,
+                    magnitude,
                     robot.forwardDrive_ChangeInHeading,
                     robot.reverseDrive_ChangeInHeading,
                     robot.centerMotorDirection,

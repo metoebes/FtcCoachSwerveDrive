@@ -122,11 +122,15 @@ public class Robot implements IRobot {
     // The direction the robot is moving in. Not necessarily the direction it is facing
     public void updateHeading(double desiredAngle,double desiredDriveSpeed) {
 
+        // turning at the moment...
         if (isUpdateDirectionFacing) {
             if (isPivoting())
-                return; // turning at the moment..
+                return;
             isUpdateDirectionFacing = false;
         }
+        // Drive speed is always positive. and must be <= 1.0
+        if (desiredDriveSpeed >  1.0)
+            desiredDriveSpeed = 1.0;
 
         currentWheelAngle = toDegrees(centerMotor.getCurrentPosition());
         forwardDrive_ChangeInHeading =  AngleUtilities.closestAngle(currentWheelAngle, desiredAngle);
@@ -176,8 +180,9 @@ public class Robot implements IRobot {
                 driveSpeed = desiredDriveSpeed;
             }
         }
-        backLeft.setPower(driveSpeed * driveDirection);
-        frontRight.setPower(driveSpeed * driveDirection);
+        // scale the drive speed to within 0 to Max
+        backLeft.setPower(config.driveSpeed * (driveSpeed * driveDirection));
+        frontRight.setPower(config.driveSpeed  * (driveSpeed * driveDirection));
     }
 
     public boolean isPivoting() {
