@@ -12,7 +12,7 @@ public abstract class AbstractTestCase {
     public int testCaseStep = 0;
     public String testCaseName = "";
     public ElapsedTime timer = new ElapsedTime();
-    Robot robot = null;
+    public Robot robot = null;
 
     public void startLogging(String name) {
         try {

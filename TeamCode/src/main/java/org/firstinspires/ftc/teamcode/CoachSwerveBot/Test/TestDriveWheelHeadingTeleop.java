@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.CoachSwerveBot.Test;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,7 +8,7 @@ import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Configuration.Config;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.AbstractTestCase;
-import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.ConfigTestCase;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Config.ConfigTurnSpeed;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Pivot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Straffe;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.SweepCCW;
@@ -74,7 +72,7 @@ public class TestDriveWheelHeadingTeleop extends OpMode {
         menu.addItem(testCase.testCaseName);
         testCases.add(testCase);
 
-        testCase = new ConfigTestCase(robot,config, impGamepad1, telemetry);
+        testCase = new ConfigTurnSpeed(robot,config, impGamepad1, telemetry);
         menu.addItem(testCase.testCaseName);
         testCases.add(testCase);
 
