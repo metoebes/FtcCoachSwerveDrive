@@ -1,10 +1,18 @@
 package org.firstinspires.ftc.teamcode.CoachSwerveBot.Configuration;
 
+import android.os.Environment;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Configuration.Config;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Config {
     public static final float MAX_DRIVE_SPEED = (float)1.0;

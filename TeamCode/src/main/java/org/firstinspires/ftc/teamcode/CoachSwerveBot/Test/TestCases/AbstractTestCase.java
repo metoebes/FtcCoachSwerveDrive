@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 
 import java.io.IOException;
 
+import javax.tools.Diagnostic;
+
 public abstract class AbstractTestCase {
     public DataLogger datalog = null;
     public int testCaseStep = 0;
