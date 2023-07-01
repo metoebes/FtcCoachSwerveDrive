@@ -2,15 +2,19 @@ package org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Diagnostics.StraffeDiagnostics;
 import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class Straffe extends AbstractTestCase {
     double angle;
     double magnitude;
     private final ImprovedGamepad impGamepad1;
     private final Telemetry telemetry;
+    private boolean marker = false;
+    private StraffeDiagnostics diagnostics;
 
     public Straffe(Robot _robot, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
         this.impGamepad1 = _impGamepad1;
@@ -19,13 +23,19 @@ public class Straffe extends AbstractTestCase {
         testCaseName = "Straffe";
     }
 
+    public void startLogging(String name) {
+        super.startLogging(name);
+        diagnostics = new StraffeDiagnostics(this.datalog);
+    }
+
     public boolean update() {
         switch (testCaseStep) {
             case 0: {
                 startLogging(testCaseName);
                 testCaseStep++;
-                telemetry.addData("right joy stick", "straffe");
-                telemetry.addData("L/R bumper", "turn");
+                telemetry.addData("Straffe Test (current max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
+                telemetry.addData("- right joy stick", "straffe");
+                telemetry.addData("- L/R bumper", "turn");
                 telemetry.addData("Press X", "to exit" + testCaseName);
                 break;
             }
@@ -49,11 +59,19 @@ public class Straffe extends AbstractTestCase {
                 else if (impGamepad1.x.isInitialPress()) {
                     testCaseStep++;
                 }
+                // right joystick
                 else {
                     // right stick active = drive toward heading
                     angle = impGamepad1.right_stick_angle;
                     magnitude = impGamepad1.right_stick_radius;
                     robot.updateHeading(angle, magnitude);
+                }
+                // Button A to add an annotation to the log data for debugging
+                if (impGamepad1.a.isInitialPress()) {
+                    marker =  true;
+                }
+                else {
+                    marker = false;
                 }
                 logData();
                 break;
@@ -74,29 +92,38 @@ public class Straffe extends AbstractTestCase {
         return (testCaseStep == 3);
     }
 
+    public void logHeader() {
+        diagnostics.logHeader();
+    }
+
     public void logData() {
-        if (datalog == null)
+
+        if (diagnostics == null)
             return;
 
-        try {
-            datalog.addDataLine(
-                    timer.time(),
-                    testCaseName,
-                    testCaseStep,
-                    angle,
-                    magnitude,
-                    robot.forwardDrive_ChangeInHeading,
-                    robot.reverseDrive_ChangeInHeading,
-                    robot.centerMotorDirection,
-                    robot.targetCenterMotorTicks,
-                    robot.centerMotor.getCurrentPosition(),
-                    robot.centerMotor.isBusy(),
-                    robot.turnSpeed,
-                    robot.driveSpeed
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
+        diagnostics.update(
+                timer.time(),
+                testCaseStep,
+                angle,
+                magnitude,
 
-        }
+                robot.forwardDrive_ChangeInHeading,
+                robot.reverseDrive_ChangeInHeading,
+
+                robot.centerMotorDirection,
+                robot.turnSpeed,
+                robot.rawTurnSpeed,
+
+                robot.centerMotor.isBusy(),
+                robot.centerMotor.getCurrentPosition(),
+                robot.targetCenterMotorTicks,
+
+                robot.driveDirection,
+                robot.driveSpeed,
+                robot.rawDriveSpeed,
+                robot.frontRight.getCurrentPosition(),
+
+                marker
+        );
     }
 }

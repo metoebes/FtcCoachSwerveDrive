@@ -26,7 +26,7 @@ public class Robot implements IRobot {
     public DcMotor centerMotor;
     public IMU imu;
     public Telemetry telemetry;
-    Config config;
+    public Config config;
 
     double robotRadiusInInches = 0;
     double wheelCircumferenceInInches = 0;
@@ -35,6 +35,8 @@ public class Robot implements IRobot {
     public double reverseDrive_ChangeInHeading;
     public double turnSpeed;
     public double driveSpeed;
+    public double rawDriveSpeed;
+    public double rawTurnSpeed;
     public int driveDirection = CCW;
     public double angleFacing;
     public double currentWheelAngle;
@@ -54,6 +56,10 @@ public class Robot implements IRobot {
         centerMotor = hardwareMap.dcMotor.get("center");
         frontRight = hardwareMap.dcMotor.get("frontRight");
         backLeft = hardwareMap.dcMotor.get("backLeft");
+
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        centerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontRight.setPower(0);
         backLeft.setPower(0);
@@ -132,28 +138,38 @@ public class Robot implements IRobot {
         if (desiredDriveSpeed >  1.0)
             desiredDriveSpeed = 1.0;
 
-        currentWheelAngle = toDegrees(centerMotor.getCurrentPosition());
-        forwardDrive_ChangeInHeading =  AngleUtilities.closestAngle(currentWheelAngle, desiredAngle);
-        reverseDrive_ChangeInHeading = AngleUtilities.closestAngle(currentWheelAngle, desiredAngle + 180);
-        
         // check if going in the opposite drive direction gets us there with less turning
-        // smallest angle change is to continue in present drive direction
+        // or if the smallest angle change is to continue in present drive direction
+        currentWheelAngle = toDegrees(centerMotor.getCurrentPosition());
+        forwardDrive_ChangeInHeading =  AngleUtilities.closestAngle(currentWheelAngle, desiredAngle);        // ex: 0       180
+        reverseDrive_ChangeInHeading = AngleUtilities.closestAngle(currentWheelAngle, desiredAngle + 180);   // ex: 180       0
+
+        int previousDriveDirection = driveDirection;
+
+        // smallest angle change is none or turning positive direction (CCW)
         if (Math.abs(forwardDrive_ChangeInHeading) <= Math.abs(reverseDrive_ChangeInHeading)) {
             changeInHeading = forwardDrive_ChangeInHeading;
+            centerMotorDirection = CCW;
+            driveDirection = CCW;
         }
-        // smallest angle change is to change drive direction
+        // smallest angle change is to change drive direction (CW)
         else {
             changeInHeading = reverseDrive_ChangeInHeading;
-            driveDirection *= -1;
-            driveSpeed = 0;
+            centerMotorDirection = CW;
+            driveDirection = CW;
         }
-        // turn in opposite direction
-        if (Math.signum(changeInHeading) != centerMotorDirection) {
-            centerMotorDirection = -1 * centerMotorDirection;
+
+        // inflection point - changing direction..
+        if (previousDriveDirection !=  driveDirection) {
+            driveSpeed =  0;
         }
-        // if less than .24 degrees its not a significant change. (1 tick = .25 degree)
-        targetDirectionAngle = currentWheelAngle;        
-        if (Math.abs(changeInHeading) > MIN_ANGLE_CHANGE) {
+
+        // if change in direction is less than .24 degrees its not a significant change. (1 tick = .25 degree)
+        targetDirectionAngle = currentWheelAngle;
+        if (Math.abs(changeInHeading) <= MIN_ANGLE_CHANGE) {
+            turnSpeed =0;
+        }
+        else {
             targetDirectionAngle += changeInHeading;
             targetCenterMotorTicks = toTicks(targetDirectionAngle);
 
@@ -170,6 +186,7 @@ public class Robot implements IRobot {
             turnSpeed *= centerMotorDirection;
             centerMotor.setPower(turnSpeed);
         }
+
         // Set the drive speed
         if  (desiredDriveSpeed ==0) {
             driveSpeed = 0;
@@ -180,9 +197,14 @@ public class Robot implements IRobot {
                 driveSpeed = desiredDriveSpeed;
             }
         }
+
         // scale the drive speed to within 0 to Max
-        backLeft.setPower(config.driveSpeed * (driveSpeed * driveDirection));
-        frontRight.setPower(config.driveSpeed  * (driveSpeed * driveDirection));
+        rawDriveSpeed = config.driveSpeed * (driveSpeed * driveDirection);
+        rawTurnSpeed = config.turnSpeed * (turnSpeed * centerMotorDirection);
+
+        centerMotor.setPower(rawTurnSpeed);
+        backLeft.setPower(rawDriveSpeed);
+        frontRight.setPower(rawDriveSpeed);
     }
 
     public boolean isPivoting() {
