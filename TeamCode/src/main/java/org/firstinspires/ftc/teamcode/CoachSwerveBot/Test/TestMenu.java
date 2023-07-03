@@ -33,7 +33,7 @@ public class TestMenu {
         if (impGamepad1.y.isInitialPress()) {
             currentItem--;
             if (currentItem < 0) {
-                currentItem = menuItems.size();
+                currentItem = menuItems.size()-1;
             }
         }
         if (impGamepad1.b.isInitialPress()) {
@@ -58,6 +58,6 @@ public class TestMenu {
     }
 
     public boolean isItemSelected() {
-        return selectedItem > 0;
+        return selectedItem >= 0;
     }
 }

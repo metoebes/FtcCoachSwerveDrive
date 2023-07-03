@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Diagnostics.StraffeDiagnostics;
@@ -28,18 +30,28 @@ public class Straffe extends AbstractTestCase {
         diagnostics = new StraffeDiagnostics(this.datalog);
     }
 
+    public void help() {
+        telemetry.addData("Straffe Test (current max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
+        telemetry.addData("- right joy stick", "straffe");
+        telemetry.addData("- L/R bumper", "turn");
+        telemetry.addData("Press X", "to exit" + testCaseName);
+    }
+    public final int START_LOGGING = 0;
+    public final int CHOOSE_TESTCASE = 1;
+    public final int STOP_LOGGING = 2;
+    public final int COMPLETED = 3;
+
     public boolean update() {
         switch (testCaseStep) {
-            case 0: {
+            case START_LOGGING: {
                 startLogging(testCaseName);
+                help();
                 testCaseStep++;
-                telemetry.addData("Straffe Test (current max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
-                telemetry.addData("- right joy stick", "straffe");
-                telemetry.addData("- L/R bumper", "turn");
-                telemetry.addData("Press X", "to exit" + testCaseName);
+                robot.frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 break;
             }
-            case 1: {
+            case CHOOSE_TESTCASE: {
                 // right bumper -  CW pivot while pressed
                 if (impGamepad1.right_bumper.isInitialPress()) {
                     robot.updateDirectionFacing(robot.getAngleFacing() + angle);
@@ -76,11 +88,11 @@ public class Straffe extends AbstractTestCase {
                 logData();
                 break;
             }
-            case 2: {
+            case STOP_LOGGING: {
                 stoplogging();
                 testCaseStep++;
             }
-            case 3: {
+            case COMPLETED: {
                 break;
             }
 
