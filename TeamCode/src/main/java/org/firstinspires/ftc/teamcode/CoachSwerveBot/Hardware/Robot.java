@@ -14,9 +14,14 @@ import org.firstinspires.ftc.teamcode.Utility.AngleUtilities;
 
 public class Robot implements IRobot {
 
+    // Center turn motor
     // gobilda motor are CCW when given positive power
     public final int CCW = 1;
     public final int CW = -1;
+
+    public final int FORWARD = 1;
+    public final int BACKWARD = -1;
+
     // using a tetrix encoded 1140 counts per revolution
     public final double TICKS_PER_MOTOR_REV = 1440; // tetrix encoder
     public final double MIN_ANGLE_CHANGE = 360.0 / TICKS_PER_MOTOR_REV;
@@ -69,8 +74,8 @@ public class Robot implements IRobot {
         centerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
 
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -108,12 +113,12 @@ public class Robot implements IRobot {
 
         if (Math.abs(forwardDrive_ChangeInHeading) <= Math.abs(reverseDrive_ChangeInHeading)) {
             changeInHeading = forwardDrive_ChangeInHeading;
-            driveDirection = CCW;
+            driveDirection = FORWARD;
         }
         // smallest angle change is to change drive direction
         else {
             changeInHeading = reverseDrive_ChangeInHeading;
-            driveDirection = CW;
+            driveDirection = BACKWARD;
         }
         // determine Target ticks (for trapezoidal speed reduction)
         driveSpeed = config.driveSpeed;
@@ -150,13 +155,13 @@ public class Robot implements IRobot {
         if (Math.abs(forwardDrive_ChangeInHeading) <= Math.abs(reverseDrive_ChangeInHeading)) {
             changeInHeading = forwardDrive_ChangeInHeading;
             centerMotorDirection = CCW;
-            driveDirection = CCW;
+            driveDirection = FORWARD;
         }
         // smallest angle change is to change drive direction (CW)
         else {
             changeInHeading = reverseDrive_ChangeInHeading;
             centerMotorDirection = CW;
-            driveDirection = CW;
+            driveDirection = BACKWARD;
         }
 
         // inflection point - changing direction..
