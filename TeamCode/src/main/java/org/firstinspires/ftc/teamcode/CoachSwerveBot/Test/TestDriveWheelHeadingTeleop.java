@@ -2,19 +2,20 @@ package org.firstinspires.ftc.teamcode.CoachSwerveBot.Test;
 
 import android.os.Environment;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
+
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Configuration.Config;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Config.ConfigDriveSpeed;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.AbstractTestCase;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Config.ConfigTurnSpeed;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.DriveMotor;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Encoder;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Pivot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Straffe;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.SweepCCW;
@@ -24,14 +25,13 @@ import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
 /* graph radians/angle, driveMotorDirection, target Encoder Count, current encoder count */
-@TeleOp(name = "TestDriveWheelHeading", group = "coach")
+@TeleOp(name = "TestDriveWheelHeading v2", group = "coach")
 public class TestDriveWheelHeadingTeleop extends OpMode {
     final public static int CHOOSE_TEST = 0;
     final public static String CONFIG_FOLDER = "config";
@@ -43,17 +43,14 @@ public class TestDriveWheelHeadingTeleop extends OpMode {
 
     Config config = null;
     TestMenu menu = null;
-    double angle = 0;
-    double radius = 0;
-
-    int action = CHOOSE_TEST;
-    int testCaseStep = 0;
-    public DataLogger datalog;
     boolean completed = false;
-    double driveSpeed;
     AbstractTestCase testCase = null;
     ArrayList<AbstractTestCase> testCases = new ArrayList();
 
+    public void addTest(AbstractTestCase testCase) {
+        menu.addItem(testCase.testCaseName);
+        testCases.add(testCase);
+    }
     @Override
     public void init() {
         // cd C:\Users\metoe\nodejsProjects\ftc-dashboard\FtcDashboard\dash
@@ -71,29 +68,14 @@ public class TestDriveWheelHeadingTeleop extends OpMode {
 
         menu = new TestMenu(impGamepad1, telemetry);
 
-        testCase = new SweepCCW(robot);
-        menu.addItem(testCase.testCaseName);
-        testCases.add(testCase);
-
-        testCase = new SweepCW(robot);
-        menu.addItem(testCase.testCaseName);
-        testCases.add(testCase);
-
-        testCase =new Pivot(robot);
-        menu.addItem(testCase.testCaseName);
-        testCases.add(testCase);
-
-        testCase = new Straffe(robot,impGamepad1, telemetry);
-        menu.addItem(testCase.testCaseName);
-        testCases.add(testCase);
-
-        testCase = new ConfigTurnSpeed(robot,config, impGamepad1, telemetry);
-        menu.addItem(testCase.testCaseName);
-        testCases.add(testCase);
-
-        testCase = new ConfigDriveSpeed(robot,config, impGamepad1, telemetry);
-        menu.addItem(testCase.testCaseName);
-        testCases.add(testCase);
+        addTest( new DriveMotor(robot,impGamepad1, telemetry) );
+        addTest( new Encoder(robot,impGamepad1, telemetry) );
+        addTest( new Straffe(robot,impGamepad1, telemetry) );
+        //addTest( new SweepCCW(robot) );
+        //addTest( new SweepCW(robot));
+        //addTest( new Pivot(robot));
+        addTest( new ConfigTurnSpeed(robot,config, impGamepad1, telemetry) );
+        addTest( new ConfigDriveSpeed(robot,config, impGamepad1, telemetry) );
 
         testCase = null;
     }
