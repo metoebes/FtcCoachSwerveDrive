@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class Straffe extends AbstractTestCase {
+public class RobotCentricDrive extends AbstractTestCase {
     double angle;
     double magnitude;
     private final ImprovedGamepad impGamepad1;
@@ -18,11 +18,11 @@ public class Straffe extends AbstractTestCase {
     private boolean marker = false;
     private StraffeDiagnostics diagnostics;
 
-    public Straffe(Robot _robot, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
+    public RobotCentricDrive(Robot _robot, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
         this.impGamepad1 = _impGamepad1;
         this.telemetry = _telemetry;
         this.robot = _robot;
-        testCaseName = "Straffe";
+        testCaseName = "Robot Centric Drive";
     }
 
     public void startLogging(String name) {
@@ -31,10 +31,11 @@ public class Straffe extends AbstractTestCase {
     }
 
     public void help() {
-        telemetry.addData("Straffe Test (current max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
+        telemetry.addData("Robot Centric Drive (max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
         telemetry.addData("- right joy stick", "straffe");
-        telemetry.addData("- L/R bumper", "turn");
-        telemetry.addData("Press X", "to exit" + testCaseName);
+        telemetry.addData("- L/R bumper", "rotate");
+        telemetry.addLine("Press X to return to main menu");
+
     }
     public final int START_LOGGING = 0;
     public final int CHOOSE_TESTCASE = 1;
@@ -52,22 +53,28 @@ public class Straffe extends AbstractTestCase {
                 break;
             }
             case CHOOSE_TESTCASE: {
-                // right bumper -  CW pivot while pressed
+                // right bumper - CCW pivot while pressed
                 if (impGamepad1.right_bumper.isInitialPress()) {
-                    robot.updateDirectionFacing(robot.getAngleFacing() + angle);
+                    robot.beginFacingNewDirection(robot.CCW);
                 }
-                // right bumper - return to drive angle  when released
+                else if (impGamepad1.right_bumper.isPressed()) {
+                    robot.updateDirectionFacing();
+                }
                 else if (impGamepad1.right_bumper.isInitialRelease()) {
-                    robot.updateHeading(robot.getAngleFacing(), 0);
+                    robot.stopFacingNewDirection();
                 }
+
                 // left bumper - CCW pivot while pressed
                 else if (impGamepad1.left_bumper.isInitialPress()) {
-                    robot.updateDirectionFacing(robot.getAngleFacing() - angle);
+                    robot.beginFacingNewDirection(robot.CW);
                 }
-                // left bumper - return to drive angle when released
+                else if (impGamepad1.left_bumper.isPressed()) {
+                    robot.updateDirectionFacing();
+                }
                 else if (impGamepad1.left_bumper.isInitialRelease()) {
-                    robot.updateHeading(robot.getAngleFacing(), 0);
+                    robot.stopFacingNewDirection();
                 }
+
                 else if (impGamepad1.x.isInitialPress()) {
                     testCaseStep++;
                 }

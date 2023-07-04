@@ -24,6 +24,7 @@ public class TestMenu {
         for (int ii=0; ii<menuItems.size(); ii++) {
             telemetry.addData(Integer.toString(ii), menuItems.get(ii) + (ii==currentItem ? "<--": " "));
         }
+
         if (impGamepad1.a.isInitialPress()) {
             currentItem++;
             if (currentItem >= menuItems.size()) {

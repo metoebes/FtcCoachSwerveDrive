@@ -14,12 +14,7 @@ import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Config.ConfigDriveSpeed;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.AbstractTestCase;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Config.ConfigTurnSpeed;
-import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.DriveMotor;
-import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Encoder;
-import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Pivot;
-import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.Straffe;
-import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.SweepCCW;
-import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.SweepCW;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.RobotCentricDrive;
 import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 
 import java.io.BufferedReader;
@@ -31,8 +26,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /* graph radians/angle, driveMotorDirection, target Encoder Count, current encoder count */
-@TeleOp(name = "TestDriveWheelHeading v2", group = "coach")
-public class TestDriveWheelHeadingTeleop extends OpMode {
+@TeleOp(name = "Swerve Drive", group = "coach")
+public class TestSwerveDrive extends OpMode {
     final public static int CHOOSE_TEST = 0;
     final public static String CONFIG_FOLDER = "config";
     final public static String CONFIG_FILENAME = "test";
@@ -47,9 +42,10 @@ public class TestDriveWheelHeadingTeleop extends OpMode {
     AbstractTestCase testCase = null;
     ArrayList<AbstractTestCase> testCases = new ArrayList();
 
-    public void addTest(AbstractTestCase testCase) {
+    public AbstractTestCase addTest(AbstractTestCase testCase) {
         menu.addItem(testCase.testCaseName);
         testCases.add(testCase);
+        return testCase;
     }
     @Override
     public void init() {
@@ -68,16 +64,23 @@ public class TestDriveWheelHeadingTeleop extends OpMode {
 
         menu = new TestMenu(impGamepad1, telemetry);
 
-        addTest( new DriveMotor(robot,impGamepad1, telemetry) );
-        addTest( new Encoder(robot,impGamepad1, telemetry) );
-        addTest( new Straffe(robot,impGamepad1, telemetry) );
+        //addTest( new DriveMotor(robot,impGamepad1, telemetry) );
+        //addTest( new Encoder(robot,impGamepad1, telemetry) );
+        testCase = addTest( new RobotCentricDrive(robot,impGamepad1, telemetry) );
         //addTest( new SweepCCW(robot) );
         //addTest( new SweepCW(robot));
-        //addTest( new Pivot(robot));
         addTest( new ConfigTurnSpeed(robot,config, impGamepad1, telemetry) );
         addTest( new ConfigDriveSpeed(robot,config, impGamepad1, telemetry) );
 
-        testCase = null;
+        telemetry.addLine("Before Pressing Start:");
+        telemetry.addLine("- Align drive wheels !!!! ");
+        telemetry.addLine("- Gold is front Right wheel ");
+        telemetry.addLine("- Green is back left wheel");
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine();
+        telemetry.addLine("Source Code:");
+        telemetry.addLine("https://github.com/metoebes/FtcCoachSwerveDrive");
     }
 
     public Config readConfigFile(String filename) {
