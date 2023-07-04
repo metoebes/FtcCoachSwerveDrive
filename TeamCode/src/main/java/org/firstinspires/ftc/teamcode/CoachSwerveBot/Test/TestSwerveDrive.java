@@ -74,7 +74,7 @@ public class TestSwerveDrive extends OpMode {
 
         telemetry.addLine("Before Pressing Start:");
         telemetry.addLine("- Align drive wheels !!!! ");
-        telemetry.addLine("- Gold is front Right wheel ");
+        telemetry.addLine("- Gold is front right wheel ");
         telemetry.addLine("- Green is back left wheel");
         telemetry.addLine();
         telemetry.addLine();
