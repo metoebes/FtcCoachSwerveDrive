@@ -49,6 +49,8 @@ public class Robot implements IRobot {
     public double targetDirectionAngle;
     public int centerMotorDirection= CCW;
     public boolean isUpdateDirectionFacing = false;
+    private double startAngle;
+    private int turnDirection;
 
     public void init(HardwareMap hardwareMap, Config _config, Telemetry _telemetry){
 
@@ -97,47 +99,12 @@ public class Robot implements IRobot {
         return orientation.getYaw(AngleUnit.DEGREES);
     }
 
-    public void updateDirectionFacing(double faceTowardDesiredAngle) {
-        isUpdateDirectionFacing = true;
-        // turn wheels to 45 degree angle
-        updateHeading(45, 0);
-        double centerMotorAngle = toDegrees(centerMotor.getCurrentPosition());
-        if (Math.abs(centerMotorAngle) - 45 >= MIN_ANGLE_CHANGE) {
-            return; // wheels are not yet in turning position
-        }
-        
-        // pivot
-        angleFacing = getAngleFacing();
-        forwardDrive_ChangeInHeading = AngleUtilities.closestAngle(angleFacing, faceTowardDesiredAngle);
-        reverseDrive_ChangeInHeading = AngleUtilities.closestAngle(angleFacing, faceTowardDesiredAngle + 180);
-
-        if (Math.abs(forwardDrive_ChangeInHeading) <= Math.abs(reverseDrive_ChangeInHeading)) {
-            changeInHeading = forwardDrive_ChangeInHeading;
-            driveDirection = FORWARD;
-        }
-        // smallest angle change is to change drive direction
-        else {
-            changeInHeading = reverseDrive_ChangeInHeading;
-            driveDirection = BACKWARD;
-        }
-        // determine Target ticks (for trapezoidal speed reduction)
-        driveSpeed = config.driveSpeed;
-        if (Math.abs(changeInHeading) < 5) {
-            driveSpeed *= Math.abs(changeInHeading) / 5;
-        }
-
-        frontRight.setPower(driveSpeed * driveDirection);
-        backLeft.setPower(driveSpeed * driveDirection * -1);
-    }
-
     // The direction the robot is moving in. Not necessarily the direction it is facing
     public void updateHeading(double desiredAngle,double desiredDriveSpeed) {
 
         // turning at the moment...
         if (isUpdateDirectionFacing) {
-            if (isPivoting())
-                return;
-            isUpdateDirectionFacing = false;
+            return;
         }
         // Drive speed is always positive. and must be <= 1.0
         if (desiredDriveSpeed >  1.0)
@@ -212,7 +179,41 @@ public class Robot implements IRobot {
         frontRight.setPower(rawDriveSpeed);
     }
 
-    public boolean isPivoting() {
-        return centerMotor.isBusy() || backLeft.isBusy() || frontRight.isBusy();
+    public void updateDirectionFacing( ) {
+        if (centerMotor.isBusy()) {
+            return; // wheels are not yet in turning position
+        }
+        //wheels are in turn position, start pivoting
+        centerMotor.setPower(0);
+
+        turnSpeed += config.turnSpeedIncrement;
+        if (turnSpeed > config.turnSpeed) {
+            turnSpeed = config.turnSpeed;
+        }
+        if (turnDirection == CCW)
+            rawTurnSpeed = turnSpeed * config.turnSpeed * -1;
+        else
+            rawTurnSpeed = turnSpeed * config.turnSpeed * 1;
+
+        frontRight.setPower(rawTurnSpeed);
+        backLeft.setPower(rawTurnSpeed * -1);
+    }
+
+    public void beginFacingNewDirection(int direction) {
+        updateHeading(45, 0);
+
+        startAngle = getAngleFacing();
+        turnDirection = direction;
+        isUpdateDirectionFacing = true;
+
+    }
+
+    public void stopFacingNewDirection() {
+        isUpdateDirectionFacing = false;
+        double delta = getAngleFacing() - startAngle;
+        if (turnDirection == CCW)
+            updateHeading(delta, 0);
+        else
+            updateHeading(-delta, 0);
     }
 }
