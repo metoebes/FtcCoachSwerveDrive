@@ -24,7 +24,7 @@ public class ConfigUtilities {
         public static String getRobotConfigurationName() {
             Context context = getContext();
             SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(context);
-            String objSerialized = preferences.getString("pref_hardware_config_filename", null);
+            String objSerialized = preferences.getString("pref_hardware_config_filename", "");
             String configName = null;
             try {
                 JSONObject jObject = new JSONObject(objSerialized);

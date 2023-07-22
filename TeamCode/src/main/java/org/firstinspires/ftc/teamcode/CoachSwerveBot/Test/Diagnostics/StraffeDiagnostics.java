@@ -40,9 +40,6 @@ public class StraffeDiagnostics {
         double _angle,
         double _magnitude,
 
-        double _CCW_ChangeInHeading,
-        double _CW_ChangeInHeading,
-
         int _centerMotorDirection,
         double _turnSpeed,
         double _rawTurnSpeed,
@@ -62,8 +59,6 @@ public class StraffeDiagnostics {
         if (_testCaseStep         != testCaseStep)         { changed = true; testCaseStep = _testCaseStep;}
         if (_angle                != angle)                { changed = true; angle = _angle;}
         if (_magnitude            != magnitude)            { changed = true; magnitude = _magnitude;}
-        if (_CCW_ChangeInHeading  != CCW_ChangeInHeading)  { changed = true; CCW_ChangeInHeading = _CCW_ChangeInHeading;}
-        if (_CW_ChangeInHeading   != CW_ChangeInHeading)   { changed = true; CW_ChangeInHeading = _CW_ChangeInHeading;}
         if (_centerMotorDirection != centerMotorDirection) { changed = true; centerMotorDirection = _centerMotorDirection;}
         if (_turnSpeed            != turnSpeed)            { changed = true; turnSpeed = _turnSpeed;}
         if (_rawTurnSpeed         != rawTurnSpeed)         { changed = true; rawTurnSpeed = _rawTurnSpeed;}
@@ -83,9 +78,6 @@ public class StraffeDiagnostics {
                         testCaseStep,
                         angle,
                         magnitude,
-
-                        CCW_ChangeInHeading,
-                        CW_ChangeInHeading,
 
                         centerMotorDirection,
                         turnSpeed,
@@ -118,8 +110,6 @@ public class StraffeDiagnostics {
                     "step",
                     "joystick angle",
                     "joystick magnitude",
-                    "CCW heading change",
-                    "CW heading change",
                     "Center Motor Direction",
                     "Center Motor Speed",
                     "Center Motor Raw Speed",

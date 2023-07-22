@@ -15,9 +15,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Config {
-    public static final float MAX_DRIVE_SPEED = (float)1.0;
     public static final float DEFAULT_SPEED_UP = (float).005;
+    public static int TANK_TURN = 1;
 
+    public int turnStyle = TANK_TURN;
     public float maxTurnSpeed = (float) 0.5;
     public boolean encoders = false;
     public float driveSpeed = (float) .4;
