@@ -177,8 +177,6 @@ public class Encoder extends AbstractTestCase {
                     testCaseName,
                     testCaseStep,
                     target,
-                    robot.forwardDrive_ChangeInHeading,
-                    robot.reverseDrive_ChangeInHeading,
                     robot.centerMotorDirection,
                     robot.targetCenterMotorTicks,
                     robot.centerMotor.getCurrentPosition(),
