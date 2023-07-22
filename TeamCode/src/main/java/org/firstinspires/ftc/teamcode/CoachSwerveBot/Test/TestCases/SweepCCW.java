@@ -58,8 +58,6 @@ public class SweepCCW extends AbstractTestCase {
                     testCaseName,
                     testCaseStep,
                     angle,
-                    robot.forwardDrive_ChangeInHeading,
-                    robot.reverseDrive_ChangeInHeading,
                     robot.centerMotorDirection,
                     robot.targetCenterMotorTicks,
                     robot.centerMotor.getCurrentPosition(),

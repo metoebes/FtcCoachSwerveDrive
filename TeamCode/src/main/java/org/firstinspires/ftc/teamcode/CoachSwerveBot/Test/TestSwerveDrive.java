@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.CoachSwerveBot.Test;
 import android.os.Environment;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -26,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /* graph radians/angle, driveMotorDirection, target Encoder Count, current encoder count */
-@TeleOp(name = "Swerve Drive", group = "coach")
+@TeleOp(name = "Swerve Drive v2", group = "coach")
 public class TestSwerveDrive extends OpMode {
     final public static int CHOOSE_TEST = 0;
     final public static String CONFIG_FOLDER = "config";
@@ -49,11 +51,9 @@ public class TestSwerveDrive extends OpMode {
     }
     @Override
     public void init() {
-        // cd C:\Users\metoe\nodejsProjects\ftc-dashboard\FtcDashboard\dash
-        // yarn start
-        // connect to robot controller wifi
-        // open browser:  http://192.168.43.1:8080/dash
-        //telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        // connect PC to robot controller wifi
+        // open PC browser:  http://192.168.43.1:8080/dash
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         impGamepad1 = new ImprovedGamepad(gamepad1, gamepadTimer, "g1");
 
@@ -81,6 +81,7 @@ public class TestSwerveDrive extends OpMode {
         telemetry.addLine();
         telemetry.addLine("Source Code:");
         telemetry.addLine("https://github.com/metoebes/FtcCoachSwerveDrive");
+
     }
 
     public Config readConfigFile(String filename) {

@@ -32,7 +32,8 @@ public class RobotCentricDrive extends AbstractTestCase {
 
     public void help() {
         telemetry.addData("Robot Centric Drive (max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
-        telemetry.addData("- right joy stick", "straffe");
+        telemetry.addData("- right joy stick", "straffe direction");
+        telemetry.addData("left joy stick", "speed");
         telemetry.addData("- L/R bumper", "rotate");
         telemetry.addLine("Press X to return to main menu");
 
@@ -78,13 +79,15 @@ public class RobotCentricDrive extends AbstractTestCase {
                 else if (impGamepad1.x.isInitialPress()) {
                     testCaseStep++;
                 }
-                // right joystick
-                else {
-                    // right stick active = drive toward heading
-                    angle = impGamepad1.right_stick_angle;
-                    magnitude = impGamepad1.right_stick_radius;
-                    robot.updateHeading(angle, magnitude);
-                }
+
+                // right stick active = drive toward heading
+                angle = impGamepad1.right_stick_angle;
+                // left stick active = speed
+                magnitude = impGamepad1.left_stick_radius;
+                if (impGamepad1.left_stick_y.getValue() < 0 )
+                    angle +=180;
+                robot.updateHeading(angle, magnitude);
+                
                 // Button A to add an annotation to the log data for debugging
                 if (impGamepad1.a.isInitialPress()) {
                     marker =  true;
@@ -125,9 +128,6 @@ public class RobotCentricDrive extends AbstractTestCase {
                 testCaseStep,
                 angle,
                 magnitude,
-
-                robot.forwardDrive_ChangeInHeading,
-                robot.reverseDrive_ChangeInHeading,
 
                 robot.centerMotorDirection,
                 robot.turnSpeed,
