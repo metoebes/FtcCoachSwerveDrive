@@ -32,9 +32,8 @@ public class RobotCentricDrive extends AbstractTestCase {
 
     public void help() {
         telemetry.addData("Robot Centric Drive (max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
-        telemetry.addData("- right joy stick", "straffe direction");
-        telemetry.addData("left joy stick", "speed");
-        telemetry.addData("- L/R bumper", "rotate");
+        telemetry.addData("- right joy stick", "straffe speed & direction");
+        telemetry.addData("- L/R bumper", "rotate to face");
         telemetry.addLine("Press X to return to main menu");
 
     }
@@ -83,7 +82,7 @@ public class RobotCentricDrive extends AbstractTestCase {
                 // right stick active = drive toward heading
                 angle = impGamepad1.right_stick_angle;
                 // left stick active = speed
-                magnitude = impGamepad1.left_stick_radius;
+                magnitude = impGamepad1.right_stick_radius;
                 if (impGamepad1.left_stick_y.getValue() < 0 )
                     angle +=180;
                 robot.updateHeading(angle, magnitude);

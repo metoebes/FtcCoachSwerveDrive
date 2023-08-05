@@ -98,9 +98,6 @@ public class Robot implements IRobot {
         centerMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        //frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        //backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -209,18 +206,18 @@ public class Robot implements IRobot {
 
         // going straight
         if (!rotateRobotInfo.isUpdateDirectionFacing) {
-            //angle_radians = currentWheelAngle_degrees *  Math.PI / 180.0;
-            //delta_x = traveled_inches * Math.cos(angle_radians);
-            //delta_y = traveled_inches * Math.sin(angle_radians);
+            angle_radians = currentWheelAngle_degrees *  Math.PI / 180.0;
+            delta_x = traveled_inches * Math.cos(angle_radians);
+            delta_y = traveled_inches * Math.sin(angle_radians);
         }
         // turning (both wheels at 45 degree angle pivoting around center of robot)
         else {
-            angle_radians = traveled_ticks / TICKS_PER_MOTOR_REV;
-            delta_x = DIAG_DST_BETWEEN_WHEELS_INCHES/2.0 - (traveled_inches * Math.cos(angle_radians));
-            delta_y = DIAG_DST_BETWEEN_WHEELS_INCHES/2.0 - (traveled_inches * Math.sin(angle_radians));
-            telemetry.addData("angle(radians)", angle_radians);
-            telemetry.addData("delta_x",delta_x);
-            telemetry.addData("delta_y", delta_y);
+            //angle_radians = (traveled_ticks / TICKS_PER_MOTOR_REV) * 2*Math.PI;
+            //delta_x = DIAG_DST_BETWEEN_WHEELS_INCHES/2.0 - (traveled_inches * Math.cos(angle_radians));
+            //delta_y = DIAG_DST_BETWEEN_WHEELS_INCHES/2.0 - (traveled_inches * Math.sin(angle_radians));
+            //telemetry.addData("angle(radians)", angle_radians);
+            //telemetry.addData("delta_x",delta_x);
+            //telemetry.addData("delta_y", delta_y);
         }
 
         wheelInfo.lastKnown_ticks = current_ticks;
@@ -245,9 +242,7 @@ public class Robot implements IRobot {
 
         // turning at the moment...
         if (rotateRobotInfo.isUpdateDirectionFacing) {
-            if (this.config.turnStyle != config.TANK_TURN) {
-                return;
-            }
+            return;
         }
         // Drive speed is always positive. and must be <= 1.0
         if (desiredDriveSpeed >  1.0)
@@ -339,57 +334,42 @@ public class Robot implements IRobot {
     public void updateDirectionFacing( ) {
         updateFieldLocation();
 
-        if (this.config.turnStyle == Config.TANK_TURN) {
-            ;
+        if (centerMotor.isBusy()) {
+            return; // wheels are not yet in turning position
         }
+        //wheels are in turn position, start pivoting
+        centerMotor.setPower(0);
 
-        else {
-            if (centerMotor.isBusy()) {
-                return; // wheels are not yet in turning position
-            }
-            //wheels are in turn position, start pivoting
-            centerMotor.setPower(0);
-
-            turnSpeed += config.turnSpeedIncrement;
-            if (turnSpeed > config.turnSpeed) {
-                turnSpeed = config.turnSpeed;
-            }
-            if (rotateRobotInfo.turnDirection == CCW)
-                rawTurnSpeed = turnSpeed * config.turnSpeed * -1;
-            else
-                rawTurnSpeed = turnSpeed * config.turnSpeed * 1;
-
-            frontRight.setPower(rawTurnSpeed);
-            backLeft.setPower(rawTurnSpeed * -1);
+        turnSpeed += config.turnSpeedIncrement;
+        if (turnSpeed > config.turnSpeed) {
+            turnSpeed = config.turnSpeed;
         }
+        if (rotateRobotInfo.turnDirection == CCW)
+            rawTurnSpeed = turnSpeed * config.turnSpeed * -1;
+        else
+            rawTurnSpeed = turnSpeed * config.turnSpeed * 1;
+
+        frontRight.setPower(rawTurnSpeed);
+        backLeft.setPower(rawTurnSpeed * -1);
     }
 
     public void beginFacingNewDirection(int direction) {
         rotateRobotInfo.turnDirection = direction;
 
-        // tank drive.. leave wheels as the are.. drive one forward and one backward
-        if (this.config.turnStyle == Config.TANK_TURN) {
-            ;
-        }
         // turn wheels 45 degrees
-        else {
-            rotateRobotInfo.originalAngle = getAngleFacing();
-            updateHeading(45, 0);
-        }
+        rotateRobotInfo.originalAngle = getAngleFacing();
+        updateHeading(45, 0);
+
         rotateRobotInfo.isUpdateDirectionFacing = true;
     }
 
     public void stopFacingNewDirection() {
         rotateRobotInfo.isUpdateDirectionFacing = false;
-        if (this.config.turnStyle == Config.TANK_TURN) {
-            ;
-        }
-        else {
-            double delta = getAngleFacing() - rotateRobotInfo.originalAngle;
-            if (rotateRobotInfo.turnDirection == CCW)
-                updateHeading(delta, 0);
-            else
-                updateHeading(-delta, 0);
-        }
+
+        double delta = getAngleFacing() - rotateRobotInfo.originalAngle;
+        if (rotateRobotInfo.turnDirection == CCW)
+            updateHeading(delta, 0);
+        else
+            updateHeading(-delta, 0);
     }
 }
