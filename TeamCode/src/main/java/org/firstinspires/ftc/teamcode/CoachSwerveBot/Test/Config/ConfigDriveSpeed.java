@@ -8,17 +8,9 @@ import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 
 
 public class ConfigDriveSpeed extends AbstractTestCase {
-    double radius;
-    private final ImprovedGamepad impGamepad1;
-    private final Telemetry telemetry;
-    Config config;
 
     public ConfigDriveSpeed(Robot _robot, Config _config, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
-        this.impGamepad1 = _impGamepad1;
-        this.telemetry = _telemetry;
-        this.robot = _robot;
-        this.config = _config;
-        testCaseName = "Set Drive Speed";
+        super("Set Drive Speed", _robot, _config, _impGamepad1, _telemetry);
     }
     private void help() {
         telemetry.addData("A/Y Buttons", "-/+ turn speed");
