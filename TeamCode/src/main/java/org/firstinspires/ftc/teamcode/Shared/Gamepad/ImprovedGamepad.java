@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.Shared.Gamepad;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.internal.files.DataLogger;
 import org.firstinspires.ftc.teamcode.Utility.AngleUtilities;
+
+import java.io.IOException;
 
 public class ImprovedGamepad {
 
@@ -48,6 +51,8 @@ public class ImprovedGamepad {
   // angle 0 = pushed forward, angle 90 = pushed left, etc
   public double left_stick_angle = 0;
   public double right_stick_angle = 0;
+
+  DataLogger recording;
 
   public ImprovedGamepad(final Gamepad hardwareGamepad,
                          final ElapsedTime timer,
@@ -138,6 +143,9 @@ public class ImprovedGamepad {
       left_stick_radius = 0;
       // else keep last known angle
     }
+    if (recording != null) {
+      updateRecording();
+    }
   }
 
   private double getJoystickAngle(FloatButton stick_x, FloatButton stick_y) {
@@ -152,5 +160,23 @@ public class ImprovedGamepad {
             a.isPressed() || b.isPressed() || x.isPressed() || y.isPressed() ||
             right_bumper.isPressed() || left_bumper.isPressed() || right_trigger.isPressed() ||
             left_trigger.isPressed() || right_stick.isPressed() || left_stick.isPressed();
+  }
+
+  public void beginRecording() {
+    try {
+      recording = new DataLogger(name + ".txt");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+  public void stopRecording() {
+    if (recording != null)
+      recording.close();
+  }
+  public void updateRecording() {
+
+  }
+  public void startPlayback() {
+
   }
 }

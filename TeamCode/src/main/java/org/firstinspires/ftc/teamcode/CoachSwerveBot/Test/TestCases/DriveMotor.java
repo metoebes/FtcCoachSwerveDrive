@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Configuration.Config;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 
@@ -19,17 +20,12 @@ public class DriveMotor extends AbstractTestCase {
     private final int TEST_SPIN_FR_BCK = 6;
     private final int TEST_SPIN_BL_BCK = 7;
 
-    private final Telemetry telemetry;
-    private final ImprovedGamepad impGamepad1;
     public ElapsedTime timer = new ElapsedTime();
     // private int target  = 0;
     private int duration = 5;
 
-    public DriveMotor(Robot _robot, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
-        this.testCaseName = "DriveMotor";
-        this.robot = _robot;
-        telemetry = _telemetry;
-        impGamepad1 = _impGamepad1;
+    public DriveMotor(Robot _robot, Config _config, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
+        super("Spin DriveMotor", _robot, _config, _impGamepad1, _telemetry);
     }
 
     public void  help() {

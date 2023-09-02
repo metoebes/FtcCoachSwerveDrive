@@ -21,10 +21,10 @@ public class Config {
     public int turnStyle = TANK_TURN;
     public float maxTurnSpeed = (float) 0.5;
     public boolean encoders = false;
-    public float driveSpeed = (float) .4;
+    public float driveSpeed = (float) .5;
     public float driveSpeedIncrement = DEFAULT_SPEED_UP;
-    public float turnSpeed = (float)  .4;
-    public float turnSpeedIncrement = DEFAULT_SPEED_UP;
+    public float turnSpeed = (float)  .5;
+    public float turnSpeedIncrement = 2 * DEFAULT_SPEED_UP;
 
     public ImprovedGamepad impGamepad1;
     public Robot robot = null;
