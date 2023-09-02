@@ -16,6 +16,8 @@ import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Config.ConfigDriveSpeed;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.AbstractTestCase;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Config.ConfigTurnSpeed;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.ChangeHeading;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.ChangeStraffeDirection;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases.RobotCentricDrive;
 import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 
@@ -55,7 +57,7 @@ public class TestSwerveDrive extends OpMode {
         // open PC browser:  http://192.168.43.1:8080/dash
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        impGamepad1 = new ImprovedGamepad(gamepad1, gamepadTimer, "g1");
+        impGamepad1 = new ImprovedGamepad(gamepad1, gamepadTimer, "g1", 0.7f);
 
         config = readConfigFile(CONFIG_FILENAME);
 
@@ -66,9 +68,9 @@ public class TestSwerveDrive extends OpMode {
 
         //addTest( new DriveMotor(robot,impGamepad1, telemetry) );
         //addTest( new Encoder(robot,impGamepad1, telemetry) );
-        testCase = addTest( new RobotCentricDrive(robot,impGamepad1, telemetry) );
-        //addTest( new SweepCCW(robot) );
-        //addTest( new SweepCW(robot));
+        testCase = addTest( new RobotCentricDrive(robot,config, impGamepad1, telemetry) );
+        addTest( new ChangeHeading(robot,config, impGamepad1, telemetry)  );
+        addTest( new ChangeStraffeDirection(robot,config, impGamepad1, telemetry)  );
         addTest( new ConfigTurnSpeed(robot,config, impGamepad1, telemetry) );
         addTest( new ConfigDriveSpeed(robot,config, impGamepad1, telemetry) );
 
@@ -136,6 +138,7 @@ public class TestSwerveDrive extends OpMode {
             if (testCase.isComplete()) {
                 testCase = null;
                 writeConfig(CONFIG_FILENAME);
+                telemetry.clear();
             }
         }
     }

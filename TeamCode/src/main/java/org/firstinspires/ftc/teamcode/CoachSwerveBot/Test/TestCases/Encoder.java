@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Configuration.Config;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 
@@ -20,16 +21,10 @@ public class Encoder extends AbstractTestCase {
     private final int TEST_BL_FR_ENCODER = 6;
     private final int REVOLUTIONS = 10;
 
-    private final Telemetry telemetry;
-    private final ImprovedGamepad impGamepad1;
-
     private int target  = 0;
 
-    public Encoder(Robot _robot, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
-        this.testCaseName = "Encoder";
-        this.robot = _robot;
-        telemetry = _telemetry;
-        impGamepad1 = _impGamepad1;
+    public Encoder(Robot _robot, Config _config, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
+        super("Spin DriveMotor", _robot, _config, _impGamepad1, _telemetry);
     }
 
     public void  help() {

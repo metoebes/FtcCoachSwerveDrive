@@ -3,26 +3,19 @@ package org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.TestCases;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.CoachSwerveBot.Configuration.Config;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Hardware.Robot;
 import org.firstinspires.ftc.teamcode.CoachSwerveBot.Test.Diagnostics.StraffeDiagnostics;
 import org.firstinspires.ftc.teamcode.Shared.Gamepad.ImprovedGamepad;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 public class RobotCentricDrive extends AbstractTestCase {
     double angle;
     double magnitude;
-    private final ImprovedGamepad impGamepad1;
-    private final Telemetry telemetry;
     private boolean marker = false;
     private StraffeDiagnostics diagnostics;
 
-    public RobotCentricDrive(Robot _robot, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
-        this.impGamepad1 = _impGamepad1;
-        this.telemetry = _telemetry;
-        this.robot = _robot;
-        testCaseName = "Robot Centric Drive";
+    public RobotCentricDrive(Robot _robot, Config _config, ImprovedGamepad _impGamepad1, Telemetry _telemetry) {
+        super("Robot Centric Drive", _robot, _config, _impGamepad1, _telemetry);
     }
 
     public void startLogging(String name) {
@@ -31,6 +24,7 @@ public class RobotCentricDrive extends AbstractTestCase {
     }
 
     public void help() {
+        telemetry.clear();
         telemetry.addData("Robot Centric Drive (max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
         telemetry.addData("- right joy stick", "straffe speed & direction");
         telemetry.addData("- L/R bumper", "rotate to face");
@@ -47,6 +41,7 @@ public class RobotCentricDrive extends AbstractTestCase {
             case START_LOGGING: {
                 startLogging(testCaseName);
                 help();
+                timer.reset();
                 testCaseStep++;
                 robot.frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -55,24 +50,24 @@ public class RobotCentricDrive extends AbstractTestCase {
             case CHOOSE_TESTCASE: {
                 // right bumper - CCW pivot while pressed
                 if (impGamepad1.right_bumper.isInitialPress()) {
-                    robot.beginFacingNewDirection(robot.CCW);
+                    robot.beginChangeHeading(robot.CCW);
                 }
                 else if (impGamepad1.right_bumper.isPressed()) {
-                    robot.updateDirectionFacing();
+                    robot.updateHeading();
                 }
                 else if (impGamepad1.right_bumper.isInitialRelease()) {
-                    robot.stopFacingNewDirection();
+                    robot.endChangeHeading();
                 }
 
                 // left bumper - CCW pivot while pressed
                 else if (impGamepad1.left_bumper.isInitialPress()) {
-                    robot.beginFacingNewDirection(robot.CW);
+                    robot.beginChangeHeading(robot.CW);
                 }
                 else if (impGamepad1.left_bumper.isPressed()) {
-                    robot.updateDirectionFacing();
+                    robot.updateHeading();
                 }
                 else if (impGamepad1.left_bumper.isInitialRelease()) {
-                    robot.stopFacingNewDirection();
+                    robot.endChangeHeading();
                 }
 
                 else if (impGamepad1.x.isInitialPress()) {
@@ -85,7 +80,10 @@ public class RobotCentricDrive extends AbstractTestCase {
                 magnitude = impGamepad1.right_stick_radius;
                 if (impGamepad1.left_stick_y.getValue() < 0 )
                     angle +=180;
-                robot.updateHeading(angle, magnitude);
+
+                // field centric - subtract whatever amount robot has already been turned
+                angle -= Math.toDegrees(robot.robotPose.heading_radians);
+                robot.updateDirection(angle, magnitude);
                 
                 // Button A to add an annotation to the log data for debugging
                 if (impGamepad1.a.isInitialPress()) {
@@ -130,7 +128,7 @@ public class RobotCentricDrive extends AbstractTestCase {
 
                 robot.centerMotorDirection,
                 robot.turnSpeed,
-                robot.rawTurnSpeed,
+                0,
 
                 robot.centerMotor.isBusy(),
                 robot.centerMotor.getCurrentPosition(),
@@ -138,7 +136,7 @@ public class RobotCentricDrive extends AbstractTestCase {
 
                 robot.driveDirection,
                 robot.driveSpeed,
-                robot.rawDriveSpeed,
+                0,
                 robot.frontRight.getCurrentPosition(),
 
                 marker
