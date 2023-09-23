@@ -25,6 +25,8 @@ public class Robot implements IRobot {
     public final int FORWARD = 1;
     public final int BACKWARD = -1;
 
+    public enum AttachmentPoint  { FRONT_RIGHT, BACK_LEFT};
+
     // using a tetrix encoded 1140 counts per revolution
     public final double TICKS_PER_MOTOR_REV = 1440; // tetrix encoder
     public final double TICKS_PER_ROBOT_REVOLUTION = 5120; // robot heading revolves around circle with wheels at 45 degrees
@@ -34,13 +36,16 @@ public class Robot implements IRobot {
     public final double DIAG_DST_BETWEEN_WHEELS_INCHES = 13.0;
     public final double DRIVE_BASE_RADIUS = DIAG_DST_BETWEEN_WHEELS_INCHES / 2.0;
 
+    // Physical Hardware attached to the robot 
     public DcMotor frontRight;
     public DcMotor backLeft;
     public DcMotor centerMotor;
     public IMU imu;
+    
+    // Utility classes 
     public Telemetry telemetry;
     public Config config;
-
+    
     public double turnSpeed;   // remember last turn speed to ramp up
     public double driveSpeed;  // remember last drive speed to ramp up
 
@@ -49,18 +54,17 @@ public class Robot implements IRobot {
 
     public int driveDirection = CCW;
     public int centerMotorDirection= CCW;
+ 
+    //Variables related to a change in heading .
+    public boolean isUpdateDirectionFacing = false;  // wheels are 45 degrees, drive motors are turning robot to new heading
+    public int changeHeadingByTurning;               // drive motors are turning CCW or CW to turn robot to new heading
+    public double previousHeadingDegrees;            // Capture previous heading, before robot starts turning to new heading.
+                                                     // This is so wheels can be returned to driving in the same directions as
+                                                     // before the change in heading started.
 
-    private class RotateRobotInfo {
-        public boolean isUpdateDirectionFacing = false;
-        public double previousHeadingDegrees;
-        public double previousHeadingTicks;
-        public int turnDirection;
-    };
-    RotateRobotInfo rotateRobotInfo = new RotateRobotInfo();
-
-    public RobotPose robotPose = new RobotPose(0,0);
-    DriveWheelPose frontRightWheel = new DriveWheelPose(DRIVE_BASE_RADIUS * Math.sqrt(2.0), -DRIVE_BASE_RADIUS * Math.sqrt(2.0), DRIVE_BASE_RADIUS, false, "gold");
-    DriveWheelPose backLeftWheel = new DriveWheelPose( -DRIVE_BASE_RADIUS * Math.sqrt(2.0),  DRIVE_BASE_RADIUS * Math.sqrt(2.0), DRIVE_BASE_RADIUS, true, "green");
+    public RobotPose robotPose = new RobotPose(0,0, 0);
+    double wheelAngle_radians;
+    double wheelTicks;
 
     public void init(HardwareMap hardwareMap, Config _config, Telemetry _telemetry){
 
@@ -101,11 +105,14 @@ public class Robot implements IRobot {
     }
 
     public void drawField() {
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        if (dashboard == null) {
+            return;
+        }
         TelemetryPacket packet = new TelemetryPacket();
         Canvas canvas = packet.fieldOverlay();
         drawAxis(canvas);
         drawRobot(canvas);
-        FtcDashboard dashboard = FtcDashboard.getInstance();
         dashboard.sendTelemetryPacket(packet);
     }
     public void drawAxis(Canvas canvas) {
@@ -140,34 +147,58 @@ public class Robot implements IRobot {
             points[ii].translate(offset.x, offset.y);
         }
     }
-    public void drawWheel(Canvas canvas, DriveWheelPose wheel) {
-        // Create a straight line (4" long) with arrow at the end
+    public void drawWheel(Canvas canvas, AttachmentPoint attachmentPoint) {
+        // Create a straight gray line (4" long) representing the motor
         Position motor[] = { new Position(WHEEL_RADIUS_INCHES, 0),
                              new Position(WHEEL_RADIUS_INCHES, 5)
         };
-        if (wheel.reverseDirection) {
-            rotateTranslatePoints(motor, wheel.wheelAngle_radians + Math.PI, wheel.positionInInches);
-        }
-        else {
-            rotateTranslatePoints(motor, wheel.wheelAngle_radians, wheel.positionInInches);
-        }
-
-        canvas.setStroke("gray");
-        canvas.setStrokeWidth(0);
-        canvas.strokeLine(motor[0].x, motor[0].y, motor[1].x, motor[1].y);
-
+        // with a Green/Gold arrow at the end representing the motor CW/CCW direction
         Position arrow[] = {
                 new Position(-WHEEL_RADIUS_INCHES, 0),
                 new Position( WHEEL_RADIUS_INCHES, 0),
                 new Position(WHEEL_RADIUS_INCHES-1, 1),
                 new Position(WHEEL_RADIUS_INCHES-1, -1)
         };
-        if (driveDirection == CCW) {
-            rotateTranslatePoints(arrow, wheel.wheelAngle_radians, wheel.positionInInches);
-        } else {
-            rotateTranslatePoints(arrow, wheel.wheelAngle_radians + Math.PI, wheel.positionInInches);
+
+        // Rotate the wheel to the direction it is facing.
+        // and then translate it to the attachment point on the robot.
+        double r = DRIVE_BASE_RADIUS * Math.sqrt(2.0);
+        Position wheelAttachmentPositionInInches;
+        double wheelAngleRadians;
+        if (attachmentPoint == AttachmentPoint.FRONT_RIGHT) {
+            wheelAngleRadians = this.wheelAngle_radians;
+            wheelAttachmentPositionInInches = new Position(   r,       -r);
         }
-        canvas.setStroke(wheel.color);
+        else {
+            wheelAngleRadians = this.wheelAngle_radians + Math.PI;
+            wheelAttachmentPositionInInches = new Position(  -r,        r);
+        }
+
+        rotateTranslatePoints(motor,wheelAngleRadians, wheelAttachmentPositionInInches);
+
+        canvas.setStroke("Gray");
+        canvas.setStrokeWidth(0);
+        canvas.strokeLine(motor[0].x, motor[0].y, motor[1].x, motor[1].y);
+
+        // Draw an arrow indicating the direction the wheel is rotating
+        if (driveDirection == CCW) {
+            wheelAngleRadians = this.wheelAngle_radians;
+        }
+        else {
+            wheelAngleRadians = this.wheelAngle_radians + Math.PI;
+        }
+
+        String color;
+        if (attachmentPoint == AttachmentPoint.BACK_LEFT) {
+            wheelAngleRadians += Math.PI;
+            color = "Gold";
+        }
+        else {
+            color = "Green";
+        }
+        rotateTranslatePoints(arrow, wheelAngleRadians, wheelAttachmentPositionInInches);
+
+        canvas.setStroke(color);
         canvas.setStrokeWidth(0);
         canvas.strokeLine(arrow[0].x, arrow[0].y, arrow[1].x, arrow[1].y);
         canvas.strokeLine(arrow[1].x, arrow[1].y, arrow[2].x, arrow[2].y);
@@ -201,12 +232,12 @@ public class Robot implements IRobot {
     public void drawRobot(Canvas canvas) {
         double r = DRIVE_BASE_RADIUS * Math.sqrt(2.0);
         Position polygon[] = {
-                new Position(r + 1,0), // 0: point
+                new Position(r + 1, 0), // 0: point
                 new Position(   r,     -1), // 1:
-                new Position(   r,       -r), // 2: corner
-                new Position(  -r,       -r), // 3: corner
-                new Position(  -r,        r), // 4: corner
-                new Position(   r,        r), // 5: corner
+                new Position(   r,       -r), // 2: corner FRONT RIGHT
+                new Position(  -r,       -r), // 3: corner BACK RIGHT
+                new Position(  -r,        r), // 4: corner BACK LEFT
+                new Position(   r,        r), // 5: corner FRONT LEFT
                 new Position(   r,      1), // 6:
         };
         for (int ii=0; ii<polygon.length; ii++) {
@@ -217,7 +248,7 @@ public class Robot implements IRobot {
         }
 
         // diagonal
-        canvas.setStroke("gray");
+        canvas.setStroke("Gray");
         canvas.setStrokeWidth(1);
         canvas.strokeLine(polygon[2].x, polygon[2].y, polygon[4].x, polygon[4].y);
         canvas.strokeLine(polygon[5].x, polygon[5].y, polygon[3].x, polygon[3].y);
@@ -229,12 +260,11 @@ public class Robot implements IRobot {
         canvas.strokeLine(polygon[1].x, polygon[1].y, polygon[2].x, polygon[2].y);
 
         // imu heading
-
         canvas.setStroke("Black");
         drawIMUHeading(canvas);
 
-        drawWheel(canvas, this.frontRightWheel);
-        drawWheel(canvas, this.backLeftWheel);
+        drawWheel(canvas, AttachmentPoint.FRONT_RIGHT);
+        drawWheel(canvas, AttachmentPoint.BACK_LEFT);
     }
 
     double CenterTickstoDegrees(int ticks) {
@@ -244,67 +274,40 @@ public class Robot implements IRobot {
         return (int) (angle /360 *(TICKS_PER_MOTOR_REV ));
     }
     public boolean isTurningToNewHeading() {
-        return rotateRobotInfo.isUpdateDirectionFacing == true;
+        return isUpdateDirectionFacing == true;
     }
     public double getImuHeadingInDegrees() {
         YawPitchRollAngles orientation = this.imu.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.DEGREES);
     }
 
-    public void updateWheelLocation(DriveWheelPose wheel, int current_ticks, double wheelAngle_degrees) {
 
-        double angle_radians = Math.toRadians(wheelAngle_degrees);
+    public void updateRobotLocation() {
+
+        double currentTicks = frontRight.getCurrentPosition();
+
+        double currentWheelAngle_degrees = CenterTickstoDegrees(centerMotor.getCurrentPosition());
+        double currentWheelAngleRadians = Math.toRadians(currentWheelAngle_degrees);
 
         // going straight
-        if (!rotateRobotInfo.isUpdateDirectionFacing) {
-            double traveled_ticks = current_ticks - wheel.ticks;
-            double traveled_inches = traveled_ticks / TICKS_PER_MOTOR_REV * INCHES_PER_REV;
-            wheel.positionInInches.x += traveled_inches * Math.cos(angle_radians);;
-            wheel.positionInInches.y += traveled_inches * Math.sin(angle_radians);;
+        if (!isUpdateDirectionFacing) {
+            // BL and RF ticks traveled should be equal if we are going straight.
+            double traveled_inches = (currentTicks- wheelTicks) / (TICKS_PER_MOTOR_REV * INCHES_PER_REV);
+
+            robotPose.positionInInches.x += traveled_inches * Math.cos(currentWheelAngleRadians);
+            robotPose.positionInInches.y += traveled_inches * Math.sin(currentWheelAngleRadians);
         }
-        // turning (both wheels at 45 degree angle pivoting around center of robot)
+        // robot is turning to a new heading (both wheels at 45 degree angle pivoting around center of robot)
         else {
-            double traveled_ticks = frontRight.getCurrentPosition()-rotateRobotInfo.previousHeadingTicks;
-            telemetry.addData("traveled Ticks", traveled_ticks);
-
-            telemetry.addData("encoder %", traveled_ticks / TICKS_PER_ROBOT_REVOLUTION);
-            double thetaInRadians = (traveled_ticks / TICKS_PER_ROBOT_REVOLUTION) * 2*Math.PI;
-            telemetry.addData("Encoder radians", thetaInRadians);
-            telemetry.addData("N full circles", Math.floor((thetaInRadians + Math.PI)/(Math.PI*2)));
-            thetaInRadians = thetaInRadians - (Math.PI *2.0 * Math.floor((thetaInRadians + Math.PI)/(Math.PI*2)));
-            telemetry.addData("Encoder radians N", thetaInRadians);
-            this.robotPose.heading_radians = thetaInRadians;
-
-            telemetry.addData("Encoder angle", Math.toDegrees(thetaInRadians));
-
-            // starting from where the wheel is mounted on the circle of rotation.
-            // Determine X and Y traveled on perimeter of circle
-            double wheelMountedAtRadians = Math.toRadians(45);
-            if (wheel.reverseDirection)
-                wheelMountedAtRadians += Math.PI;
-            double radius = DIAG_DST_BETWEEN_WHEELS_INCHES/2.0;
-            double XonCircle = radius * Math.cos(this.robotPose.heading_radians + wheelMountedAtRadians);
-            double YonCircle = radius * Math.sin(this.robotPose.heading_radians + wheelMountedAtRadians);
-
-            // translate from [0,0] to robot center position
-            wheel.positionInInches.x = robotPose.positionInInches.x + XonCircle;
-            wheel.positionInInches.y = robotPose.positionInInches.y + YonCircle;
+            double traveledTicks = currentTicks-wheelTicks;
+            double traveledRadians = (traveledTicks / TICKS_PER_ROBOT_REVOLUTION) * 2*Math.PI;
+            this.robotPose.heading_radians += traveledRadians;
         }
+        wheelTicks = currentTicks;
+        wheelAngle_radians = currentWheelAngleRadians;
+    }
 
-        wheel.wheelAngle_radians = angle_radians;
-        wheel.ticks = current_ticks;
-    }
-    public void updateRobotLocation() {
-        robotPose.positionInInches.x = (backLeftWheel.positionInInches.x + frontRightWheel.positionInInches.x)/2.0;
-        robotPose.positionInInches.y = (backLeftWheel.positionInInches.y + frontRightWheel.positionInInches.y)/2.0;
-    }
     public void updateFieldLocation() {
-        int current_BL_ticks = backLeft.getCurrentPosition();
-        int current_FR_ticks = frontRight.getCurrentPosition();
-        double currentWheelAngle_degrees = CenterTickstoDegrees(centerMotor.getCurrentPosition());
-
-        updateWheelLocation(this.backLeftWheel, current_BL_ticks, currentWheelAngle_degrees);
-        updateWheelLocation(this.frontRightWheel, current_FR_ticks, currentWheelAngle_degrees);
         updateRobotLocation();
         drawField();
     }
@@ -314,7 +317,7 @@ public class Robot implements IRobot {
         updateFieldLocation();
 
         // turning at the moment...
-        if (rotateRobotInfo.isUpdateDirectionFacing) {
+        if (isUpdateDirectionFacing) {
             return;
         }
         // Drive speed is always positive. and must be <= 1.0
@@ -323,7 +326,7 @@ public class Robot implements IRobot {
 
         // check if going in the opposite drive direction gets us there with less turning
         // or if the smallest angle change is to continue in present drive direction
-        double currentWheelAngle_degrees = Math.toDegrees(backLeftWheel.wheelAngle_radians); // same as front right angle
+        double currentWheelAngle_degrees = Math.toDegrees(wheelAngle_radians); // same as front right angle
         double forwardDrive_ChangeInHeading =  AngleUtilities.closestAngle(currentWheelAngle_degrees, desiredAngleInDegrees);        // ex: 0       180
         double reverseDrive_ChangeInHeading = AngleUtilities.closestAngle(currentWheelAngle_degrees, desiredAngleInDegrees + 180);   // ex: 180       0
 
@@ -388,9 +391,9 @@ public class Robot implements IRobot {
 
         centerMotor.setPower(rawTurnSpeed);
 
-        if (rotateRobotInfo.isUpdateDirectionFacing) {
+        if (isUpdateDirectionFacing) {
             if (this.config.turnStyle == Config.TANK_TURN) {
-                if (rotateRobotInfo.turnDirection == CCW) {
+                if (changeHeadingByTurning  == CCW) {
                     frontRight.setPower(rawDriveSpeed);
                     backLeft.setPower(-rawDriveSpeed);
                 } else {
@@ -419,30 +422,28 @@ public class Robot implements IRobot {
             turnSpeed = config.turnSpeed;
         }
         double rawTurnSpeed = 0;
-        if (rotateRobotInfo.turnDirection == CCW)
+        if (changeHeadingByTurning  == CCW)
             rawTurnSpeed = turnSpeed * config.turnSpeed * -1;
         else
             rawTurnSpeed = turnSpeed * config.turnSpeed * 1;
 
         frontRight.setPower(rawTurnSpeed);
         backLeft.setPower(rawTurnSpeed * -1);
-        telemetry.addData("ticks traveled",  frontRight.getCurrentPosition()-rotateRobotInfo.previousHeadingTicks);
     }
 
     public void beginChangeHeading(int direction) {
-        rotateRobotInfo.turnDirection = direction;
-        rotateRobotInfo.previousHeadingTicks = frontRight.getCurrentPosition();
-        rotateRobotInfo.previousHeadingDegrees = Math.toDegrees(robotPose.heading_radians);
+        changeHeadingByTurning  = direction;
+        previousHeadingDegrees = Math.toDegrees(robotPose.heading_radians);
         updateDirection(45, 0);
 
-        rotateRobotInfo.isUpdateDirectionFacing = true;
+        isUpdateDirectionFacing = true;
     }
 
     public void endChangeHeading() {
-        rotateRobotInfo.isUpdateDirectionFacing = false;
+        isUpdateDirectionFacing = false;
 
-        double delta = Math.toDegrees(robotPose.heading_radians) - rotateRobotInfo.previousHeadingDegrees;
-        if (rotateRobotInfo.turnDirection == CCW)
+        double delta = Math.toDegrees(robotPose.heading_radians) - previousHeadingDegrees;
+        if (changeHeadingByTurning  == CCW)
             updateDirection(-delta, 0);
         else
             updateDirection(delta, 0);
