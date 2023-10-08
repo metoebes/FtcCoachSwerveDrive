@@ -114,7 +114,7 @@ public class ChangeHeading extends AbstractTestCase {
                     testCaseName,
                     testCaseStep,
                     robot.getImuHeadingInDegrees(),
-                    robot.robotPose.heading_radians,
+                    robot.pose.heading_radians,
                     ticks
             );
         } catch (IOException e) {

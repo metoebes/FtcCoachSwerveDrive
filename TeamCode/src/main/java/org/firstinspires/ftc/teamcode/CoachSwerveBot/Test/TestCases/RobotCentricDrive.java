@@ -82,7 +82,7 @@ public class RobotCentricDrive extends AbstractTestCase {
                     angle +=180;
 
                 // field centric - subtract whatever amount robot has already been turned
-                angle -= Math.toDegrees(robot.robotPose.heading_radians);
+                angle -= Math.toDegrees(robot.pose.heading_radians);
                 robot.updateDirection(angle, magnitude);
                 
                 // Button A to add an annotation to the log data for debugging

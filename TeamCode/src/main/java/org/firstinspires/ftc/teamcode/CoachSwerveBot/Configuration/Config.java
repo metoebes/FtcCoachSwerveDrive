@@ -15,7 +15,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class Config {
-    public static final float DEFAULT_SPEED_UP = (float).005;
+    public static final float DEFAULT_SPEED_UP = (float).007;
     public static int TANK_TURN = 1;
 
     public int turnStyle = TANK_TURN;
