@@ -98,7 +98,7 @@ public class Robot implements IRobot {
         telemetry = _telemetry;
         config = _config;
 
-        DrawHelper.drawField(this, telemetry);
+        DrawUtilities.drawField(this, telemetry);
     }
 
     double CenterTickstoDegrees(int ticks) {
@@ -144,7 +144,7 @@ public class Robot implements IRobot {
         prevTicks = currentTicks;
         prevWheelAngleRadians = currentWheelAngleRadians;
 
-        DrawHelper.drawField(this, telemetry);
+        DrawUtilities.drawField(this, telemetry);
     }
 
     // The direction the robot is moving in. Not necessarily the direction it is facing

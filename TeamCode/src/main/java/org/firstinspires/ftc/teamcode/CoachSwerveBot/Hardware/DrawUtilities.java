@@ -6,7 +6,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public abstract class DrawHelper {
+public abstract class DrawUtilities {
 
     public static void drawAxis(Canvas canvas) {
         canvas
@@ -84,7 +84,7 @@ public abstract class DrawHelper {
         }
         wheelAttachmentPositionInInches.x += robot.pose.positionInInches.x;
         wheelAttachmentPositionInInches.y += robot.pose.positionInInches.y;
-        GeometryHelper.rotateTranslatePoints(motor,wheelAngleRadians, wheelAttachmentPositionInInches);
+        GeometryUtilities.rotateTranslatePoints(motor,wheelAngleRadians, wheelAttachmentPositionInInches);
 
         canvas.setStroke("Gray");
         canvas.setStrokeWidth(0);
@@ -102,7 +102,7 @@ public abstract class DrawHelper {
             wheelAngleRadians += Math.PI;
         }
 
-        GeometryHelper.rotateTranslatePoints(arrow, wheelAngleRadians, wheelAttachmentPositionInInches);
+        GeometryUtilities.rotateTranslatePoints(arrow, wheelAngleRadians, wheelAttachmentPositionInInches);
 
         canvas.setStroke(color);
         canvas.setStrokeWidth(0);
