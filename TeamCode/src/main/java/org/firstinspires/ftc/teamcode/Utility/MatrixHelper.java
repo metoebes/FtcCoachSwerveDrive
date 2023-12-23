@@ -12,12 +12,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
-import static org.firstinspires.ftc.teamcode.Utility.VuforiaUtilities.INCHES_TO_MM;
-import static org.firstinspires.ftc.teamcode.Utility.VuforiaUtilities.MM_TO_INCHES;
+
 
 @SuppressLint("DefaultLocale")
 public class MatrixHelper {
-
+    public static final float MM_TO_INCHES = 0.0393701f;
+    public static final float INCHES_TO_MM = 25.4f;
     /**
      * Builds a Matrix with the given translation (in MM) and orientation (in Degrees)
      *

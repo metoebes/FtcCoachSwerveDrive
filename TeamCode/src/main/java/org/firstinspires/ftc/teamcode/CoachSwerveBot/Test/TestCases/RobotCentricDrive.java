@@ -25,9 +25,9 @@ public class RobotCentricDrive extends AbstractTestCase {
 
     public void help() {
         telemetry.clear();
-        telemetry.addData("Robot Centric Drive (max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
-        telemetry.addData("- right joy stick", "straffe speed & direction");
-        telemetry.addData("- L/R bumper", "rotate to face");
+        // telemetry.addData("Robot Centric Drive (max speed = " + Float.toString(robot.config.driveSpeed) + ")", "");
+        telemetry.addData("right joy stick", "straffe");
+        // telemetry.addData("- L/R bumper", "rotate to face");
         telemetry.addLine("Press X to return to main menu");
 
     }

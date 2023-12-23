@@ -41,7 +41,7 @@ public abstract class DrawUtilities {
                 new Position(r, 0),
                 new Position(r-1, -1)
         };
-        telemetry.addData("IMU Heading", robot.getImuHeadingInDegrees());
+        //telemetry.addData("IMU Heading", robot.getImuHeadingInDegrees());
 
         double imuAngleRadian = Math.toRadians(robot.getImuHeadingInDegrees());
         for (int ii=0; ii<imuPointer.length; ii++) {

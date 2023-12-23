@@ -66,8 +66,6 @@ public class TestSwerveDrive extends OpMode {
 
         menu = new TestMenu(impGamepad1, telemetry);
 
-        //addTest( new DriveMotor(robot,impGamepad1, telemetry) );
-        //addTest( new Encoder(robot,impGamepad1, telemetry) );
         testCase = addTest( new RobotCentricDrive(robot,config, impGamepad1, telemetry) );
         addTest( new ChangeHeading(robot,config, impGamepad1, telemetry)  );
         addTest( new ChangeStraffeDirection(robot,config, impGamepad1, telemetry)  );
@@ -78,6 +76,7 @@ public class TestSwerveDrive extends OpMode {
         telemetry.addLine("- Align drive wheels !!!! ");
         telemetry.addLine("- Gold is front right wheel ");
         telemetry.addLine("- Green is back left wheel");
+        telemetry.addLine("- motors should not stick out");
         telemetry.addLine();
         telemetry.addLine();
         telemetry.addLine();
